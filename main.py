@@ -41,10 +41,8 @@ class VKdownloader:
                         'file_name': str(name_photo) + '.jpg',
                         'size': size['type']
                     })
-                    with open(f'photo/{name_photo}.jpg', 'wb') as ph:
-                        ph.write(requests.get(size['url']).content)
-                    YaUploader(YAtoken).upload(name_photo, f'photo/{name_photo}.jpg')
-                    os.remove(f'photo/{name_photo}.jpg')
+                    YaUploader(YAtoken).upload(name_photo, size['url'])
+
         with open('info_photo.json', 'w') as f:
             pass
         with open('info_photo.json', 'a') as f:
@@ -55,34 +53,31 @@ class YaUploader:
         self.YAtoken = YAtoken
         self.headers = {"Authorization": self.YAtoken}
 
-    # создание папки на Яндекс.Диске
     def new_folder(self):
-        # создание папки на Яндекс.Диске
+        url = 'https://cloud-api.yandex.net/v1/disk/resources'
         requests.put(
-            'https://cloud-api.yandex.net/v1/disk/resources',
+            url,
             headers = self.headers,
-            params={'path': 'photo'}
-        )         
-
-    def upload(self, name_photo, ph):
-        # запрос на создание файла на Яндекс.Диске
-        response = requests.get(
+            params={'path': 'BackUp/'}
+        )
+        date = datetime.datetime.now()
+        folder = 'BackUp/'+ str(id)+ '_' + str(date.strftime('%y-%m-%d %H-%M-%S'))
+        requests.put(
+            url,
+            headers = self.headers,
+            params={'path': folder}            
+        )
+        return folder 
+     
+    def upload(self, name_photo, url):
+        requests.post(
             'https://cloud-api.yandex.net/v1/disk/resources/upload',
             headers = self.headers,
-            params={'path': 'photo/' + str(name_photo) + '.jpg', 'overwrite': True}
-        )
-
-        # получаем ссылку для загрузки файла       
-        href = response.json()["href"]
-
-        # отправляем файл на Яндекс.Диск 
-        response = requests.put(
-            href,
-            files = {"file": open(ph, 'rb')}            
-        )  
+            params={'path': str(new_folder) + '/' + str(name_photo) + '.jpg', 'url': url}
+        )             
 
 if __name__ == '__main__':
-    YAtoken = input("Введите токен: ")    
+    YAtoken = input("Введите токен: ")   
     id = input("Введите ID пользователя: ")
     count = int(input('Введите количество фотографий (по умолчанию 5): '))
     new_folder = YaUploader(YAtoken).new_folder()
