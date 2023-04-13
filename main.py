@@ -66,7 +66,7 @@ class YaUploader:
             params={'path': folder}            
         )
      
-    def upload(self, dict_photo):
+    def upload(self, dict_photo, folder):
         for name_photo, url_photo in tqdm(dict_photo.items()):
             path_photo = folder + '/' + str(name_photo) + '.jpg'
             requests.post(
@@ -82,5 +82,5 @@ if __name__ == '__main__':
     folder = 'BackUp/'+ str(id) + '_' + str(datetime.datetime.now().strftime('%y-%m-%d %H-%M-%S'))
     YaUploader(token_YA).new_folder(folder)
     downloader = VKdownloader(id).download_photos(id, count)
-    YaUploader(token_YA).upload(downloader)
+    YaUploader(token_YA).upload(downloader, folder)
    
