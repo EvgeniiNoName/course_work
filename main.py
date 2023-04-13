@@ -53,7 +53,7 @@ class YaUploader:
         self.token_YA = token_YA
         self.headers = {"Authorization": self.token_YA}
 
-    def new_folder(self):
+    def new_folder(self, folder):
         url = 'https://cloud-api.yandex.net/v1/disk/resources'
         requests.put(
             url,
@@ -66,14 +66,14 @@ class YaUploader:
             params={'path': folder}            
         )
      
-    def upload(self, dict_photo, folder):
+    def upload(self, dict_photo):
         for name_photo, url_photo in tqdm(dict_photo.items()):
             path_photo = folder + '/' + str(name_photo) + '.jpg'
             requests.post(
                 'https://cloud-api.yandex.net/v1/disk/resources/upload',
                 headers = self.headers,
                 params={'path': path_photo, 'url': url_photo}
-            )          
+            )             
 
 if __name__ == '__main__':
     token_YA = input("Введите токен: ")   
